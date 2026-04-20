@@ -7,16 +7,32 @@
 <?import javafx.scene.layout.StackPane?>
 
 <?import javafx.scene.layout.HBox?>
-<VBox alignment="BOTTOM_CENTER" spacing="50.0" xmlns:fx="http://javafx.com/fxml"
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.layout.FlowPane?>
+<VBox alignment="CENTER" spacing="15.0" xmlns:fx="http://javafx.com/fxml"
       fx:controller="com.example.demo.Controller">
 
     <padding>
         <Insets bottom="20.0" left="20.0" right="20.0" top="20.0"/>
     </padding>
 
-    <StackPane VBox.vgrow="ALWAYS">
-    <ImageView fx:id="imageView" fitWidth="1000" fitHeight="1000" preserveRatio="true"/>
-    </StackPane>
+    <HBox alignment="BOTTOM_CENTER" spacing="10">
+        <Button text="Sauvegarde" onAction="#save"/>
+        <Button text="Retour" onAction="#retour"/>
+    </HBox>
+    <ImageView fx:id="imageView" fitWidth="540" fitHeight="360" preserveRatio="true"/>
+
+    <FlowPane fx:id="tags"/>
+    <TextField fx:id="newTag" promptText="nouveau tag..."/>
+    <Button text="+ Ajouter tag"
+            onAction="#addTagButton"/>
+
+    <TextField fx:id="searchTags" promptText="Rechercher par tag..."/>
+    <Button text="Rechercher"
+            onAction="#searchTagsButton"/>
+
+    <ListView fx:id="paths" onMouseClicked="#openFromFind" prefHeight="150"/>
 
     <HBox alignment="BOTTOM_CENTER" spacing="10">
         <Button text="Choisi ta photo" onAction="#chooseImageButton"/>

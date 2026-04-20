@@ -1,19 +1,27 @@
 package com.example.demo;
 
 import javafx.scene.image.Image;
-import javafx.scene.image.PixelReader;
-import javafx.scene.image.PixelWriter;
-import javafx.scene.image.WritableImage;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
 
 public class Picture {
     private Image image;
 
+    private String path;
+    private ArrayList<String> tags = new ArrayList<>();
+    private ArrayList<Transfo> transformations = new ArrayList<>();
+    private String password = "";
+
+    public Picture() throws IOException {
+    }
+
     public enum Transfo {
-        ROTATER, ROTATEL, AXEX, AXEY, ECHANGE, SEPIA, BLACKWHITE, PREWITT
+        ROTATER, ROTATEL, AXEX, AXEY, ECHANGE, SEPIA, BLACKWHITE, PREWITT, CHIFFREMENT
     };
 
     public void setImageFC(Stage stage) {
@@ -36,7 +44,29 @@ public class Picture {
         //prend le lien recolter par le file chooser
         File imageLink = fileC.showOpenDialog(stage);
         if (imageLink != null) {
-            this.image = new Image(imageLink.toURI().toString());
+            this.path = imageLink.toURI().toString();
+            this.image = new Image(this.path);
+        }
+    }
+
+    public void setImagePD(PictureData pd){
+        if (pd != null){
+            this.path = pd.getPath();
+            this.image = new Image(this.path);
+            this.tags = pd.getTags();
+            this.transformations = new ArrayList<>();
+
+            for ( Transfo t : pd.getTransformations()){
+                this.transform(t);
+                this.addTransformation(t);
+            }
+        }
+    }
+
+
+    public void addTag(String tag){
+        if (!tag.isEmpty()) {
+            this.tags.add(tag);
         }
     }
 
@@ -46,6 +76,9 @@ public class Picture {
             switch (t) {
                 case ROTATER:
                     transformation = new RotateR();
+                    break;
+                case ROTATEL:
+                    transformation = new RotateL();
                     break;
                 case AXEX:
                     transformation = new AxeX();
@@ -58,6 +91,7 @@ public class Picture {
                     break;
                 case BLACKWHITE:
                     transformation = new BlackWhite();
+                    break;
                 case SEPIA:
                     transformation = new Sepia();
                     break;
@@ -65,11 +99,22 @@ public class Picture {
                     transformation = new Prewitt();
                     break;
                 default:
-                    transformation = new RotateL();
+                    transformation = null;
                     break;
             }
+            if (transformation != null) {
+                this.image = transformation.apply(this.image);
+            }
+        }
+    }
 
-            this.image = transformation.apply(this.image);
+    public void back(){
+        if (!this.transformations.isEmpty()){
+            this.transformations.removeLast();
+            this.image = new Image(this.path);
+            for (Transfo t : this.transformations) {
+                this.transform(t);
+            }
         }
     }
 
@@ -77,4 +122,12 @@ public class Picture {
     public Image getImage(){
         return this.image;
     }
+    public void setImage(Image image) { this.image = image; }
+    public ArrayList<String> getTags(){return this.tags;}
+    public void setTags(ArrayList<String> tags){ this.tags = tags; }
+    public String getPath(){return this.path;}
+    public void setPath(String path){this.path = path;}
+    public ArrayList<Transfo> getTransformations(){return this.transformations;}
+    public void setTransformations(ArrayList<Transfo> t){this.transformations = t;}
+    public void addTransformation(Transfo t){this.transformations.add(t);}
 }
