@@ -27,6 +27,9 @@ public class Controller {
     private ListView<String> paths;
 
     @FXML
+    private TextField password;
+
+    @FXML
     private ImageView imageView;
 
     public Controller() throws IOException {
@@ -160,6 +163,21 @@ public class Controller {
     @FXML
     protected void retour() {
         this.picture.back();
+        this.imageView.setImage(this.picture.getImage());
+    }
+
+    @FXML
+    protected void encryptButton() throws Exception {
+        if (this.picture.getImage() != null) {
+            this.picture.encrypt(this.password.getText());
+            this.imageView.setImage(this.picture.getImage());
+        }
+    }
+
+    @FXML
+    protected void decryptButton() throws Exception {
+        if (this.picture.getImage() == null) return;
+        this.picture.decrypt(this.password.getText());
         this.imageView.setImage(this.picture.getImage());
     }
 }

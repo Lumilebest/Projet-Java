@@ -2,6 +2,7 @@ module com.example.demo {
     requires javafx.controls;
     requires javafx.fxml;
     requires com.fasterxml.jackson.databind;
+    requires java.desktop;
 
 
     opens com.example.demo to javafx.fxml, com.fasterxml.jackson.databind;
