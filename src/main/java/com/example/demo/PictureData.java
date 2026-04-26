@@ -6,6 +6,7 @@ public class PictureData {
     private String path;
     private ArrayList<String> tags = new ArrayList<>();
     private ArrayList<Picture.Transfo> transformations = new ArrayList<>();
+    private boolean crypted;
 
     public PictureData(){};
 
@@ -15,4 +16,6 @@ public class PictureData {
     public void setPath(String path){this.path = path;}
     public ArrayList<Picture.Transfo> getTransformations(){return this.transformations;}
     public void setTransformations(ArrayList<Picture.Transfo> t){this.transformations = t;}
+    public boolean getCrypted(){return this.crypted;}
+    public void setCrypted(boolean crypted){this.crypted = crypted;}
 }

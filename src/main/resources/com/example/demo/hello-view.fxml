@@ -37,6 +37,7 @@
         <TextField fx:id="password" promptText="Mot de passe..."/>
         <Button text="Chiffrer" onAction="#encryptButton"/>
         <Button text="Déchiffrer" onAction="#decryptButton"/>
+        <Button text="cherger tags" onAction="#applyTransfo"/>
     </HBox>
     <HBox alignment="BOTTOM_CENTER" spacing="10">
         <Button text="Choisi ta photo" onAction="#chooseImageButton"/>

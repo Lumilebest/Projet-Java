@@ -42,7 +42,7 @@ public class Controller {
     @FXML
     protected void chooseImageButton() throws IOException {
         if (this.picture.getImage() != null){
-            this.json.save(this.picture.getPath(), this.picture.getTags(), this.picture.getTransformations());
+            this.json.save(this.picture.getPath(), this.picture.getTags(), this.picture.getTransformations(), this.picture.getCrypted());
         }
 
         picture.setImageFC(this.stage);
@@ -146,7 +146,7 @@ public class Controller {
     @FXML
     protected void openFromFind() throws IOException {
         if (this.picture.getImage() != null){
-            this.json.save(this.picture.getPath(), this.picture.getTags(), this.picture.getTransformations());
+            this.json.save(this.picture.getPath(), this.picture.getTags(), this.picture.getTransformations(), this.picture.getCrypted());
         }
         String selected = this.paths.getSelectionModel().getSelectedItem();
         this.picture.setImagePD(this.json.searchPath(selected));
@@ -157,7 +157,7 @@ public class Controller {
 
     @FXML
     protected void save() throws IOException {
-        this.json.save(this.picture.getPath(), this.picture.getTags(), this.picture.getTransformations());
+        this.json.save(this.picture.getPath(), this.picture.getTags(), this.picture.getTransformations(), this.picture.getCrypted());
     }
 
     @FXML
@@ -168,7 +168,7 @@ public class Controller {
 
     @FXML
     protected void encryptButton() throws Exception {
-        if (this.picture.getImage() != null) {
+        if (this.picture.getImage() != null && !this.picture.getCrypted()) {
             this.picture.encrypt(this.password.getText());
             this.imageView.setImage(this.picture.getImage());
         }
@@ -176,8 +176,17 @@ public class Controller {
 
     @FXML
     protected void decryptButton() throws Exception {
-        if (this.picture.getImage() == null) return;
-        this.picture.decrypt(this.password.getText());
-        this.imageView.setImage(this.picture.getImage());
+        if (this.picture.getImage() != null) {
+            this.picture.decrypt(this.password.getText());
+            this.imageView.setImage(this.picture.getImage());
+        }
+    }
+
+    @FXML
+    protected void applyTransfo(){
+        if(this.picture.getImage()!=null && !this.picture.getTransformations().isEmpty()){
+            this.picture.applyTransfo();
+            this.imageView.setImage(this.picture.getImage());
+        }
     }
 }

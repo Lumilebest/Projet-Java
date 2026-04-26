@@ -11,6 +11,8 @@ import javafx.stage.Stage;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.UnsupportedEncodingException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
@@ -25,7 +27,7 @@ public class Picture {
     private String path;
     private ArrayList<String> tags = new ArrayList<>();
     private ArrayList<Transfo> transformations = new ArrayList<>();
-    private boolean crypt ;
+    private boolean crypted ;
 
     public Picture() throws IOException {
     }
@@ -56,6 +58,9 @@ public class Picture {
         if (imageLink != null) {
             this.path = imageLink.toURI().toString();
             this.image = new Image(this.path);
+            this.crypted = false;
+            this.transformations = new ArrayList<>();
+            this.tags = new ArrayList<>();
         }
     }
 
@@ -64,12 +69,8 @@ public class Picture {
             this.path = pd.getPath();
             this.image = new Image(this.path);
             this.tags = pd.getTags();
-            this.transformations = new ArrayList<>();
-
-            for ( Transfo t : pd.getTransformations()){
-                this.transform(t);
-                this.addTransformation(t);
-            }
+            this.transformations = pd.getTransformations();
+            this.crypted = pd.getCrypted();
         }
     }
 
@@ -80,15 +81,18 @@ public class Picture {
         }
     }
 
-    public void encrypt(String password) throws NoSuchAlgorithmException, IOException {
-        this.crypt = true;
+    public void encrypt(String password) throws NoSuchAlgorithmException, IOException, URISyntaxException {
+        this.crypted = true;
 
         MessageDigest md = MessageDigest.getInstance("SHA-256");
         byte[] hashedpassword = md.digest(password.getBytes("UTF-8"));
 
-        SecureRandom random = new SecureRandom(hashedpassword);
+        SecureRandom random = SecureRandom.getInstance("SHA1PRNG");
+        random.setSeed(hashedpassword);
 
-        BufferedImage image = ImageIO.read(new File(this.path));
+
+        BufferedImage image = ImageIO.read(new File(new URI(this.path)));
+        this.image = null;
         int width = image.getWidth();
         int height = image.getHeight();
         int totalp = width*height;
@@ -103,16 +107,18 @@ public class Picture {
 
         image.setRGB(0,0, width, height, pixels, 0, width);
 
-        ImageIO.write(image, "png", new File(this.path));
+        ImageIO.write(image, "png", new File(new URI(this.path)));
     }
 
     public void decrypt(String password) throws NoSuchAlgorithmException, UnsupportedEncodingException {
-        this.crypt = true;
+        this.crypted = true;
 
         MessageDigest md = MessageDigest.getInstance("SHA-256");
         byte[] hashedpassword = md.digest(password.getBytes("UTF-8"));
 
-        SecureRandom random = new SecureRandom(hashedpassword);
+        SecureRandom random = SecureRandom.getInstance("SHA1PRNG");
+        random.setSeed(hashedpassword);
+
 
         int width = (int) image.getWidth();
         int height = (int) image.getHeight();
@@ -193,6 +199,15 @@ public class Picture {
         }
     }
 
+    public void applyTransfo(){
+        ArrayList<Transfo> temp = new ArrayList<>(this.transformations);
+        this.transformations = new ArrayList<>();
+
+        for( Transfo t : temp){
+            this.transform(t);
+        }
+    }
+
     public void back(){
         if (!this.transformations.isEmpty()){
             this.transformations.removeLast();
@@ -215,6 +230,6 @@ public class Picture {
     public ArrayList<Transfo> getTransformations(){return this.transformations;}
     public void setTransformations(ArrayList<Transfo> t){this.transformations = t;}
     public void addTransformation(Transfo transfo){this.transformations.add(transfo);}
-    public boolean getCrypt(){ return this.crypt; }
-    public void setCrypt(boolean crypt){this.crypt = crypt;}
+    public boolean getCrypted(){ return this.crypted; }
+    public void setCrypted(boolean crypt){this.crypted = crypt;}
 }

@@ -42,7 +42,7 @@ public class Json {
         return paths;
     }
 
-    public void save(String path, ArrayList<String> tags, ArrayList<Picture.Transfo> transformations) throws IOException {
+    public void save(String path, ArrayList<String> tags, ArrayList<Picture.Transfo> transformations, boolean crypted) throws IOException {
         PictureData pd = this.searchPath(path);
         if(pd == null){
             pd = new PictureData();
@@ -52,6 +52,7 @@ public class Json {
 
         pd.setTags(tags);
         pd.setTransformations(transformations);
+        pd.setCrypted(crypted);
 
         ObjectMapper mapper = new ObjectMapper();
         mapper.writeValue(new File("src/main/resources/saves/data.json"), this.pictureDatas.toArray());
