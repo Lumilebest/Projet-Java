@@ -16,8 +16,6 @@ public class Json {
         if (file.exists() && file.length()>0){
             ObjectMapper mapper = new ObjectMapper();
             this.pictureDatas = new ArrayList<>(Arrays.asList(mapper.readValue(file, PictureData[].class)));
-        }else{
-            System.out.println("erreur fichier");
         }
     }
 

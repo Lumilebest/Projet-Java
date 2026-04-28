@@ -77,7 +77,9 @@ public class Picture {
 
     public void addTag(String tag){
         if (!tag.isEmpty()) {
-            this.tags.add(tag);
+            if ( !this.tags.contains(tag) ) {
+                this.tags.add(tag);
+            }
         }
     }
 
@@ -193,8 +195,10 @@ public class Picture {
                     transformation = null;
                     break;
             }
+
             if (transformation != null) {
                 this.image = transformation.apply(this.image);
+                this.transformations.add(t);
             }
         }
     }
@@ -212,9 +216,7 @@ public class Picture {
         if (!this.transformations.isEmpty()){
             this.transformations.removeLast();
             this.image = new Image(this.path);
-            for (Transfo t : this.transformations) {
-                this.transform(t);
-            }
+            this.applyTransfo();
         }
     }
 
@@ -222,14 +224,8 @@ public class Picture {
     public Image getImage(){
         return this.image;
     }
-    public void setImage(Image image) { this.image = image; }
     public ArrayList<String> getTags(){return this.tags;}
-    public void setTags(ArrayList<String> tags){ this.tags = tags; }
     public String getPath(){return this.path;}
-    public void setPath(String path){this.path = path;}
     public ArrayList<Transfo> getTransformations(){return this.transformations;}
-    public void setTransformations(ArrayList<Transfo> t){this.transformations = t;}
-    public void addTransformation(Transfo transfo){this.transformations.add(transfo);}
     public boolean getCrypted(){ return this.crypted; }
-    public void setCrypted(boolean crypt){this.crypted = crypt;}
 }
