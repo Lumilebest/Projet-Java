@@ -7,6 +7,7 @@ import javafx.scene.image.WritableImage;
 import javafx.scene.paint.Color;
 
 public abstract class FiltreS implements Transformation {
+    //ouvre l'image et parcour les indices
     public Image apply (Image image){
         int width = (int) image.getWidth();
         int height = (int) image.getHeight();
@@ -22,7 +23,7 @@ public abstract class FiltreS implements Transformation {
         }
         return result;
     }
-
+    //n'utilise qu'un pixel
     protected abstract Color transform(Color color);
 
 }

@@ -7,6 +7,7 @@ import javafx.scene.image.WritableImage;
 import javafx.scene.paint.Color;
 
 public abstract class Rotate implements Transformation {
+    //créer une image avec des dimensions différente et parcour les indices
     public Image apply (Image image){
         int width = (int) image.getWidth();
         int height = (int) image.getHeight();

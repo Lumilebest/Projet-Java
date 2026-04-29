@@ -7,6 +7,7 @@ import javafx.scene.image.WritableImage;
 import javafx.scene.paint.Color;
 
 public abstract class FiltreC implements Transformation {
+    //ouvre l'image et parcour les indices
     public Image apply (Image image){
         int width = (int) image.getWidth();
         int height = (int) image.getHeight();
@@ -23,6 +24,7 @@ public abstract class FiltreC implements Transformation {
         return result;
     }
 
+    //utilise l'image en soit car besoins de plusieur pixel
     protected abstract Color transform(PixelReader reader, int x, int y, int width, int height);
 
 }

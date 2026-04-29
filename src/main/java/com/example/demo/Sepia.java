@@ -4,6 +4,7 @@ import javafx.scene.paint.Color;
 
 public class Sepia extends FiltreS{
     @Override
+    //met un filtre jaunatre sur l'image
     protected Color transform(Color color) {
         double r = color.getRed()*0.393+color.getGreen()*0.769+color.getBlue()*0.189;
         double g = color.getRed()*0.349+ color.getGreen()*0.686+ color.getBlue()*0.168;

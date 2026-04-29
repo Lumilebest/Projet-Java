@@ -7,7 +7,6 @@ import javafx.scene.image.WritableImage;
 import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
-
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.UnsupportedEncodingException;
@@ -16,14 +15,13 @@ import java.net.URISyntaxException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 
+
 public class Picture {
     private Image image;
-
     private String path;
     private ArrayList<String> tags = new ArrayList<>();
     private ArrayList<Transfo> transformations = new ArrayList<>();
@@ -37,24 +35,27 @@ public class Picture {
     };
 
     public void setImageFC(Stage stage) {
-        //initialise le FileChooser
+        //créer et le file chooser
         FileChooser fileC = new FileChooser();
         fileC.setTitle("Choisis une image");
         fileC.getExtensionFilters().addAll(
                 new FileChooser.ExtensionFilter("Images", "*.jpg", "*.jpeg", "*.png", "*.gif", "*.bmp")
         );
 
-        //donne un repertoire courant au filechooser
+        //va a un repertoire courent
         File dossier = new File("src/main/resources/images");
 
+        //Si le dossier existe le filechooser l'utilise sinon il va ailleurs
         if (dossier.exists()) {
             fileC.setInitialDirectory(dossier);
         } else {
             fileC.setInitialDirectory(new File("C:/"));
         }
 
-        //prend le lien recolter par le file chooser
+        //récupaire l'adresse sélectionné
         File imageLink = fileC.showOpenDialog(stage);
+
+        //si l'image existe charge l'objet
         if (imageLink != null) {
             this.path = imageLink.toURI().toString();
             this.image = new Image(this.path);
@@ -64,105 +65,124 @@ public class Picture {
         }
     }
 
-    public void setImagePD(PictureData pd){
-        if (pd != null){
-            this.path = pd.getPath();
+    //recois les informations du json et charge l'image a partir de ca
+    public void setImagePD(PictureData pictureData){
+        if (pictureData != null){
+            this.path = pictureData.getPath();
             this.image = new Image(this.path);
-            this.tags = pd.getTags();
-            this.transformations = pd.getTransformations();
-            this.crypted = pd.getCrypted();
+            this.tags = pictureData.getTags();
+            this.transformations = pictureData.getTransformations();
+            this.crypted = pictureData.getCrypted();
         }
     }
 
-
+    //ajotue un tag
     public void addTag(String tag){
-        if (!tag.isEmpty()) {
-            if ( !this.tags.contains(tag) ) {
-                this.tags.add(tag);
+        String [] tags = tag.split(" ");
+        if (this.image != null && tags.length>=1) {
+            for(String t : tags ){
+                if ( !this.tags.contains(t) ) {
+                    this.tags.add(t);
+                }
             }
         }
     }
 
     public void encrypt(String password) throws NoSuchAlgorithmException, IOException, URISyntaxException {
-        this.crypted = true;
+        if (this.image != null ){
+            this.crypted = true;
 
-        MessageDigest md = MessageDigest.getInstance("SHA-256");
-        byte[] hashedpassword = md.digest(password.getBytes("UTF-8"));
+            //créer le générateur et lui donne une seed
+            MessageDigest md = MessageDigest.getInstance("SHA-256");
+            byte[] hashedpassword = md.digest(password.getBytes("UTF-8"));
 
-        SecureRandom random = SecureRandom.getInstance("SHA1PRNG");
-        random.setSeed(hashedpassword);
+            SecureRandom random = SecureRandom.getInstance("SHA1PRNG");
+            random.setSeed(hashedpassword);
 
+            //charge l'image d'origine et prend des informations utile
+            BufferedImage image = ImageIO.read(new File(new URI(this.path)));
+            this.image = null;
+            int width = image.getWidth();
+            int height = image.getHeight();
+            int totalp = width*height;
 
-        BufferedImage image = ImageIO.read(new File(new URI(this.path)));
-        this.image = null;
-        int width = image.getWidth();
-        int height = image.getHeight();
-        int totalp = width*height;
+            //déplace chaque pixel
+            int[] pixels = image.getRGB(0,0,width, height, null, 0, width);
+            for (int i = 0; i<totalp; i++){
+                int temp = pixels[i];
+                int nextInt = random.nextInt(totalp);
+                pixels[i] = pixels[nextInt];
+                pixels[nextInt] = temp;
+            }
 
-        int[] pixels = image.getRGB(0,0,width, height, null, 0, width);
-        for (int i = 0; i<totalp; i++){
-            int temp = pixels[i];
-            int nextInt = random.nextInt(totalp);
-            pixels[i] = pixels[nextInt];
-            pixels[nextInt] = temp;
+            //traduit sous format rgb
+            image.setRGB(0,0, width, height, pixels, 0, width);
+
+            //enregistre et recharge l'image ( sans les modifications )
+            ImageIO.write(image, "png", new File(new URI(this.path)));
+            this.image = new Image(this.path);
         }
-
-        image.setRGB(0,0, width, height, pixels, 0, width);
-
-        ImageIO.write(image, "png", new File(new URI(this.path)));
     }
 
     public void decrypt(String password) throws NoSuchAlgorithmException, UnsupportedEncodingException {
-        this.crypted = true;
+        if ( this.image != null ){
 
-        MessageDigest md = MessageDigest.getInstance("SHA-256");
-        byte[] hashedpassword = md.digest(password.getBytes("UTF-8"));
+            //créer le générateur et lui donne une seed
+            MessageDigest md = MessageDigest.getInstance("SHA-256");
+            byte[] hashedpassword = md.digest(password.getBytes("UTF-8"));
 
-        SecureRandom random = SecureRandom.getInstance("SHA1PRNG");
-        random.setSeed(hashedpassword);
+            SecureRandom random = SecureRandom.getInstance("SHA1PRNG");
+            random.setSeed(hashedpassword);
 
+            //prend la taille de l'image
+            int width = (int) image.getWidth();
+            int height = (int) image.getHeight();
+            int totalp = width * height;
 
-        int width = (int) image.getWidth();
-        int height = (int) image.getHeight();
-        int totalp = width * height;
+            PixelReader reader = image.getPixelReader();
+            WritableImage result = new WritableImage(width, height);
+            PixelWriter writer = result.getPixelWriter();
 
-        PixelReader reader = image.getPixelReader();
-        WritableImage result = new WritableImage(width, height);
-        PixelWriter writer = result.getPixelWriter();
-
-        int[] echangeIndex = new int[totalp];
-        for (int i = 0; i < totalp; i++) {
-            echangeIndex[i] = random.nextInt(totalp);
-        }
-
-        Color[][] tab = new Color[height][width];
-        for (int y = 0; y < height; y++) {
-            for (int x = 0; x < width; x++) {
-                tab[y][x] = reader.getColor(x, y);
+            //créer un tableau des nombre aléatoire pour les refaire dans l'autre sens
+            int[] echangeIndex = new int[totalp];
+            for (int i = 0; i < totalp; i++) {
+                echangeIndex[i] = random.nextInt(totalp);
             }
-        }
 
-        for (int i = totalp - 1; i >= 0; i--) {
-            int x = i % width;
-            int y = i / width;
-            int ind = echangeIndex[i];
-            int xi = ind % width;
-            int yi = ind / width;
-
-            Color temp = tab[y][x];
-            tab[y][x] = tab[yi][xi];
-            tab[yi][xi] = temp;
-        }
-
-        for (int y = 0; y < height; y++) {
-            for (int x = 0; x < width; x++) {
-                writer.setColor(x, y, tab[y][x]);
+            //fais un tableau d'image ( pour faire des permutation et donc ne pas détruire des pixels
+            Color[][] tab = new Color[height][width];
+            for (int y = 0; y < height; y++) {
+                for (int x = 0; x < width; x++) {
+                    tab[y][x] = reader.getColor(x, y);
+                }
             }
-        }
 
-        this.image = result;
+            //applique sur le tableau de pixel les permutations
+            for (int i = totalp - 1; i >= 0; i--) {
+                int x = i % width;
+                int y = i / width;
+
+                int ind = echangeIndex[i];
+                int x2 = ind % width;
+                int y2 = ind / width;
+
+                Color temp = tab[y][x];
+                tab[y][x] = tab[y2][x2];
+                tab[y2][x2] = temp;
+            }
+
+            //copie le tableau de pixel dans l'image
+            for (int y = 0; y < height; y++) {
+                for (int x = 0; x < width; x++) {
+                    writer.setColor(x, y, tab[y][x]);
+                }
+            }
+
+            this.image = result;
+        }
     }
 
+    //applique des transformations
     public void transform(Transfo t){
         if (this.image != null) {
             Transformation transformation;
@@ -203,27 +223,35 @@ public class Picture {
         }
     }
 
+    //applique toutes les transformations latente
     public void applyTransfo(){
-        ArrayList<Transfo> temp = new ArrayList<>(this.transformations);
-        this.transformations = new ArrayList<>();
+        if ( this.image != null ){
+            ArrayList<Transfo> temp = new ArrayList<>(this.transformations);
+            this.transformations = new ArrayList<>();
 
-        for( Transfo t : temp){
-            this.transform(t);
+            for( Transfo t : temp){
+                this.transform(t);
+            }
         }
     }
 
-    public void back(){
-        if (!this.transformations.isEmpty()){
+    //fais un retour en arrière ( supprime une modification et les rejoue tout )
+    public void back(String password) throws UnsupportedEncodingException, NoSuchAlgorithmException {
+        if (this.image != null && !this.transformations.isEmpty()){
             this.transformations.removeLast();
             this.image = new Image(this.path);
-            this.applyTransfo();
+            if (!this.crypted){
+                this.applyTransfo();
+            }else{
+                if (!password.isEmpty()){
+                    this.decrypt(password);
+                    this.applyTransfo();
+                }
+            }
         }
     }
 
-
-    public Image getImage(){
-        return this.image;
-    }
+    public Image getImage(){ return this.image; }
     public ArrayList<String> getTags(){return this.tags;}
     public String getPath(){return this.path;}
     public ArrayList<Transfo> getTransformations(){return this.transformations;}

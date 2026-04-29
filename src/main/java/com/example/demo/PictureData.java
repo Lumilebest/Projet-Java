@@ -8,6 +8,7 @@ public class PictureData {
     private ArrayList<Picture.Transfo> transformations = new ArrayList<>();
     private boolean crypted;
 
+    //laisse le constructeur vide pour que jackson puisse y acceder
     public PictureData(){};
 
     public ArrayList<String> getTags(){return this.tags;}

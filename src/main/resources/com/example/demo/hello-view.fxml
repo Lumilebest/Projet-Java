@@ -16,38 +16,45 @@
         <Insets bottom="20.0" left="20.0" right="20.0" top="20.0"/>
     </padding>
 
+    <!-- Bloc de sauvegarde et de retour en arrière -->
     <HBox alignment="TOP_CENTER" spacing="10">
-        <Button text="Sauvegarde" onAction="#save"/>
+        <Button text="Sauvegarder" onAction="#save"/>
         <Button text="Retour" onAction="#retour"/>
     </HBox>
 
-    <ImageView fx:id="imageView" fitWidth="540" fitHeight="360" preserveRatio="true"/>
+    <!-- L'image visible -->
+    <ImageView fx:id="imageView" fitWidth="600" fitHeight="600" preserveRatio="true"/>
 
+    <!-- Indicateur de travail en cours -->
     <ProgressIndicator fx:id="travail" visible="false"/>
-    <HBox alignment="BOTTOM_CENTER" spacing="10">
-        <TextField fx:id="tags" promptText="nouveau tag..."/>
-        <Button text="+ Ajouter tag" onAction="#addTagButton"/>
-        <Button text="Rechercher tag" onAction="#searchTagsButton"/>
-    </HBox>
 
-    <ListView fx:id="paths" onMouseClicked="#openFromFind" prefHeight="150"/>
+    <!-- Bloc de recherche par tag et d'ajout de tag -->
+    <HBox alignment="BOTTOM_CENTER" spacing="10">
+        <TextField fx:id="tags" promptText="Chien Chat ..."/>
+        <Button text="Ajouter un tag" onAction="#addTagButton"/>
+        <Button text="Rechercher un tag" onAction="#searchTagsButton"/>
+    </HBox>
+    <ListView fx:id="paths" onMouseClicked="#openFromFind" prefHeight="150" visible="false" managed="false"/>
+
+    <!-- Bloc de cryptage/décriptage et chargement des tags latent -->
     <HBox alignment="BOTTOM_CENTER" spacing="10">
         <TextField fx:id="password" promptText="Mot de passe..."/>
         <Button text="Chiffrer" onAction="#encryptButton"/>
         <Button text="Déchiffrer" onAction="#decryptButton"/>
-        <Button text="charger transfo" onAction="#applyTransfo"/>
+        <Button text="Charger les transformations" onAction="#applyTransfo"/>
     </HBox>
+
+    <!-- Bloc des filtres modification applicable -->
     <HBox alignment="BOTTOM_CENTER" spacing="10">
-        <Button text="Choisi ta photo" onAction="#chooseImageButton"/>
-        <Button text="Pivoter vers la droite" onAction="#rotateRightImageButton"/>
-        <Button text="Pivoter vers la gauche" onAction="#rotateLeftImageButton"/>
+        <Button text="Choisir une photo" onAction="#chooseImageButton"/>
+        <Button text="Rotation droite" onAction="#rotateRightImageButton"/>
+        <Button text="Rotation gauche" onAction="#rotateLeftImageButton"/>
         <Button text="Axe x" onAction="#axeXImageButton" />
         <Button text="Axe Y" onAction="#axeYImageButton" />
-        <Button text="Echange" onAction="#echangeFiltreImage" />
+        <Button text="Décalage RGB" onAction="#echangeFiltreImage" />
         <Button text="Noir et blanc" onAction="#BlackWhiteFiltreImage" />
         <Button text="Sepia" onAction="#sepiaFiltreImage" />
         <Button text="Prewitt" onAction="#PrewittFiltreImage" />
     </HBox>
-
 
 </VBox>

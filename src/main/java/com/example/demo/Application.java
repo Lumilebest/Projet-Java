@@ -20,7 +20,7 @@ public class Application extends javafx.application.Application {
         c.setStage(stage);
 
         //donne un titre puis met la scene a l'affichage puis la montre
-        stage.setTitle("Application projet!");
+        stage.setTitle("Editeur de photo");
         stage.setScene(scene);
         stage.show();
     }
